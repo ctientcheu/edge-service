@@ -39,10 +39,12 @@ jobs:
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
       - name: Validate Kubernetes manifests
-        uses: docker://ghcr.io/yannh/kubeconform:latest
+        uses: stefanprodan/kube-tools@v1
         with:
-          entrypoint: '/kubeconform'
-          args: "-summary -output json k8s/"
+          kubectl: 1.29.2
+          kubeconform: 0.6.4
+          command: |
+            kubeconform --strict k8s
 
   package:
     name: Package and Publish
