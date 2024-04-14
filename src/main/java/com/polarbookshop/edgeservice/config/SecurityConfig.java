@@ -19,8 +19,8 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
+            .oauth2Login(Customizer.withDefaults())
             .authorizeExchange(exchange -> exchange.anyExchange().authenticated())
-            .formLogin(Customizer.withDefaults())
             .build();
     }
 }

@@ -22,6 +22,17 @@ spring:
     redis:
       namespace: polar:edge
     timeout: 10m
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: edge-service
+            client-secret: polar-keycloak-secret
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/realms/PolarBookshop
   cloud:
     config:
       uri: http://localhost:9002
@@ -92,7 +103,7 @@ resilience4j:
       default:
         timeout-duration: 5s
 
-logging:
-  level:
-    io.github.resilience4j: DEBUG
-    org.springframework.security: TRACE
+#logging:
+#  level:
+#    io.github.resilience4j: DEBUG
+#    org.springframework.security: TRACE
