@@ -27,14 +27,20 @@ import reactor.core.publisher.Mono;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-    private ServerLogoutSuccessHandler oidcLogoutSuccessHandler(ReactiveClientRegistrationRepository clientRegistrationRepository) {
+    private final ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+    public SecurityConfig(ReactiveClientRegistrationRepository clientRegistrationRepository) {
+        this.clientRegistrationRepository = clientRegistrationRepository;
+    }
+
+    private ServerLogoutSuccessHandler oidcLogoutSuccessHandler() {
         var oidcLogoutSuccessHandler = new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository);
         oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
         return oidcLogoutSuccessHandler;
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, ReactiveClientRegistrationRepository clientRegistrationRepository) {
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
@@ -47,12 +53,16 @@ public class SecurityConfig {
             )
             .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED)))
             .oauth2Login(Customizer.withDefaults())
-            .logout(logout -> logout.logoutSuccessHandler(oidcLogoutSuccessHandler(clientRegistrationRepository)))
+            .logout(logout -> logout.logoutSuccessHandler(oidcLogoutSuccessHandler())) // oidc logout initiated by the application
+            .oidcLogout(logout -> logout
+                .backChannel(Customizer.withDefaults())
+                .clientRegistrationRepository(clientRegistrationRepository)
+            ) // application logout initiated by oidc provider
             .build();
     }
 
     @Bean
-    WebFilter csrfCookieWebFilter() {
+    public WebFilter csrfCookieWebFilter() {
         return (exchange, chain) -> exchange
             .getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty())
             .then(chain.filter(exchange));
