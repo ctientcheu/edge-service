@@ -29,7 +29,7 @@ spring:
           keycloak:
             client-id: edge-service
             client-secret: polar-keycloak-secret
-            scope: openid
+            scope: openid,roles
         provider:
           keycloak:
             issuer-uri: http://localhost:8080/realms/PolarBookshop
@@ -93,6 +93,7 @@ spring:
               burstCapacity: 20
               requestedTokens: 1
         - name: SaveSession
+        - name: TokenRelay # forward access token from oauth2 issuer to downstream services
 
 resilience4j:
   circuitbreaker:

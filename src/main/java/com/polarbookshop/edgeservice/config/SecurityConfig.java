@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcClientInitiatedServerLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
@@ -40,7 +42,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
@@ -54,17 +56,18 @@ public class SecurityConfig {
             .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED)))
             .oauth2Login(Customizer.withDefaults())
             .logout(logout -> logout.logoutSuccessHandler(oidcLogoutSuccessHandler())) // oidc logout initiated by the application
-            .oidcLogout(logout -> logout
-                .backChannel(Customizer.withDefaults())
-                .clientRegistrationRepository(clientRegistrationRepository)
-            ) // application logout initiated by oidc provider
             .build();
     }
 
     @Bean
-    public WebFilter csrfCookieWebFilter() {
+    WebFilter csrfCookieWebFilter() {
         return (exchange, chain) -> exchange
             .getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty())
             .then(chain.filter(exchange));
+    }
+
+    @Bean
+    ServerOAuth2AuthorizedClientRepository authorizedClientRepository() {
+        return new WebSessionServerOAuth2AuthorizedClientRepository();
     }
 }
