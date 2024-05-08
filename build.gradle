@@ -6,6 +6,7 @@ plugins {
 
 group = 'com.polarbookshop'
 version = '0.0.1-SNAPSHOT'
+description = 'Polar Booksop System Api Gateway'
 
 java {
 	sourceCompatibility = '17'
@@ -60,4 +61,8 @@ bootBuildImage {
 			url = project.findProperty("registryUrl")
 		}
 	}
+}
+
+springBoot {
+	buildInfo()
 }
