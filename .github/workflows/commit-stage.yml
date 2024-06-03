@@ -41,11 +41,10 @@ jobs:
       - name: Validate Kubernetes manifests
         uses: stefanprodan/kube-tools@v1
         with:
-          kubectl: 1.29.2
-          kubeconform: 0.6.4
+          kubectl: 1.28.3
+          kubeval: 0.16.1
           command: |
-            kubeconform --strict k8s
-
+            kubeval --strict -d k8s
   package:
     name: Package and Publish
     if: ${{ github.ref == 'refs/heads/master' }}
@@ -67,7 +66,8 @@ jobs:
       - name: Build container image
         run: |
           chmod +x gradlew
-          ./gradlew bootBuildImage --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          ./gradlew bootBuildImage \
+            --imageName ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
       - name: OCI image vulnerability scanning
         uses: anchore/scan-action@v3
         id: scan

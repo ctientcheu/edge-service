@@ -16,17 +16,17 @@ import reactor.core.publisher.Mono;
 @RestController
 public class UserController {
 
-    @GetMapping("user")
-    public Mono<User> getUser() {
-        return ReactiveSecurityContextHolder
-            .getContext()
-            .map(SecurityContext::getAuthentication)
-            .map(authentication -> (OidcUser) authentication.getPrincipal())
-            .map(oidcUser -> new User(
-                oidcUser.getPreferredUsername(),
-                oidcUser.getGivenName(),
-                oidcUser.getFamilyName(),
-                oidcUser.getClaimAsStringList("roles")
-            ));
-    }
+  @GetMapping("user")
+  public Mono<User> getUser() {
+    return ReactiveSecurityContextHolder.getContext()
+        .map(SecurityContext::getAuthentication)
+        .map(authentication -> (OidcUser) authentication.getPrincipal())
+        .map(
+            oidcUser ->
+                new User(
+                    oidcUser.getPreferredUsername(),
+                    oidcUser.getGivenName(),
+                    oidcUser.getFamilyName(),
+                    oidcUser.getClaimAsStringList("roles")));
+  }
 }

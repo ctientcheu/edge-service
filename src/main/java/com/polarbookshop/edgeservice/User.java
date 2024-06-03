@@ -7,9 +7,4 @@ import java.util.List;
  * @project edge-service
  * @org Cerebrau
  */
-public record User(
-   String username,
-   String firstName,
-   String lastName,
-   List<String> roles
-) {}
+public record User(String username, String firstName, String lastName, List<String> roles) {}
